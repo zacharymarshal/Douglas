@@ -6,8 +6,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 function getJasperUrl()
 {
-	$config = include 'config.php';
-	return $config['jasper_url'];
-}
+    $config = include 'config.php';
 
-?>
+    return $config['jasper_url'];
+}
