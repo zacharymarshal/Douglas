@@ -1,0 +1,31 @@
+{
+  "name": "zacharyrankin/douglas",
+  "type": "library",
+  "description": "Douglas PHP library for running Jasper Reports using their report REST API (v2)",
+  "keywords": ["php", "jasper", "report", "jasperserver"],
+  "homepage": "http://github.com/zacharyrankin/douglas",
+  "license": "MIT",
+  "authors": [
+    {
+        "name": "Zachary Rankin",
+        "email": "rankin.zachary@gmail.com",
+        "homepage": "https://github.com/zacharyrankin"
+    }
+  ],
+
+  "require": {
+    "php": ">=5.3.3"
+  },
+
+  "autoload": {
+    "psr-0": {
+        "Douglas\\Tests": "tests/",
+        "Douglas": "src/"
+    }
+  },
+
+  "require-dev": {
+    "phpunit/phpunit": "3.7.*",
+    "symfony/class-loader": "*"
+  }
+}

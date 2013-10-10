@@ -1,0 +1,5 @@
+<?php
+
+return array(
+	'jasper_url' => 'http://jasperadmin:jasperadmin@localhost:8080/jasperserver/',
+);
