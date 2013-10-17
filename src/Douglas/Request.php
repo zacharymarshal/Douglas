@@ -11,37 +11,26 @@ class Request
     protected $headers = array();
     protected $code;
     protected $body;
+    protected $maker;
 
     public function __construct($options = array())
     {
         $url = $jasper_url = $jsessionid = null;
+        $maker = '\Douglas\Request\Maker';
         extract($options, EXTR_IF_EXISTS);
         $this->url = $url;
         $this->jasper_url = $jasper_url;
         $this->jsessionid = $jsessionid;
+        $this->maker = $maker;
     }
 
     public function send()
     {
-        // Request has already been sent
-        if (isset($this->body)) {
-            return false;
-        }
+        list($response, $header_size) = call_user_func_array(
+            array($this->maker, 'send'),
+            array($this->getUrl(), $this->jsessionid)
+        );
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->getUrl());
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HEADER, true);
-
-        // Force JSON to be returned instead of XML
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json'));
-
-        if ($this->jsessionid) {
-            curl_setopt($ch, CURLOPT_COOKIE, "JSESSIONID={$this->jsessionid}");
-        }
-        $response = curl_exec($ch);
-        $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $header = substr($response, 0, $header_size);
 
         $this->headers = $this->parseHeader($header);
@@ -49,9 +38,7 @@ class Request
         $this->jsessionid = $this->parseJsessionid($header);
         $this->body = substr($response, $header_size);
 
-        curl_close($ch);
-
-        return true;
+        return $this;
     }
 
     public function getError()
@@ -108,7 +95,6 @@ class Request
     protected function parseCode($header)
     {
         $parts = explode(' ', substr($header, 0, strpos($header, "\r\n")));
-
         return intval($parts[1]);
     }
 
