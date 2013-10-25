@@ -101,15 +101,15 @@ class ReportTest extends \PHPUnit_Framework_TestCase
                 'format' => \Douglas\Request\Report::FORMAT_PDF,
             )
         );
-        $this->assertEquals(false, $report->getHtml('/'));
+        $this->assertEquals(false, $report->getHtml());
     }
 
     public function testGetHtmlReplacesAssets()
     {
         $request = $this->getMock('\Douglas\Request', array('getBody'));
-        $request->expects($this->once())
+        $request->expects($this->any())
             ->method('getBody')
-            ->will($this->returnValue('jasperserver/test_image_url'));
+            ->will($this->returnValue('<img src="jasperserver/test_image_url1" /> <img src="jasperserver/test_image_url2" />'));
 
         $report = new \Douglas\Request\Report(
             array(
@@ -117,8 +117,92 @@ class ReportTest extends \PHPUnit_Framework_TestCase
                 'request' => $request
             )
         );
-        $html = $report->getHtml('images/asset.php&url=', 'jasperserver/');
-        $this->assertEquals('images/asset.php&url=test_image_url', $html);
+        $html = $report->getHtml(function($asset_url, $jsessionid) {
+            return str_replace('jasperserver/test_image_url', '', $asset_url);
+        });
+        $this->assertEquals('<img src="1" /> <img src="2" />', $html);
+    }
+
+    public function testGetHtmlReplacesWithNothing()
+    {
+        $request = $this->getMock('\Douglas\Request', array('getBody'));
+        $request->expects($this->any())
+            ->method('getBody')
+            ->will($this->returnValue('<img src="jasperserver/test_image_url" />'));
+        $report = new \Douglas\Request\Report(
+            array(
+                'format'  => \Douglas\Request\Report::FORMAT_HTML,
+                'request' => $request
+            )
+        );
+        $html = $report->getHtml(function($asset_url, $jsessionid) {
+            return false;
+        });
+        $this->assertEquals('<img src="" />', $html);
+    }
+
+    public function testGetHtmlSingleQuotes()
+    {
+        $request = $this->getMock('\Douglas\Request', array('getBody'));
+        $request->expects($this->any())
+            ->method('getBody')
+            ->will($this->returnValue("<img src='jasperserver/test_image_url' />"));
+        $report = new \Douglas\Request\Report(
+            array(
+                'format'  => \Douglas\Request\Report::FORMAT_HTML,
+                'request' => $request
+            )
+        );
+        $html = $report->getHtml(function($asset_url, $jsessionid) {
+            return 'testing!';
+        });
+        $this->assertEquals("<img src='testing!' />", $html);
+    }
+
+    public function testGetHtmlDifferentTags()
+    {
+        $request = $this->getMock('\Douglas\Request', array('getBody'));
+        $request->expects($this->any())
+            ->method('getBody')
+            ->will($this->returnValue("<script type='text/javascript' src='jquery.js'></script>"));
+        $report = new \Douglas\Request\Report(
+            array(
+                'format'  => \Douglas\Request\Report::FORMAT_HTML,
+                'request' => $request
+            )
+        );
+        $html = $report->getHtml(function($asset_url, $jsessionid) {
+            return 'testing!';
+        });
+        $this->assertEquals("<script type='text/javascript' src='testing!'></script>", $html);
+    }
+
+    public function testGetHtmlReplaceMultipleLines()
+    {
+        $request_return = <<<HTML
+<script type='text/javascript' src='jquery.js'></script>
+<img src="hello_world1.png" />
+<img src="hello_world2.png" />
+HTML;
+        $request = $this->getMock('\Douglas\Request', array('getBody'));
+        $request->expects($this->any())
+            ->method('getBody')
+            ->will($this->returnValue($request_return));
+        $report = new \Douglas\Request\Report(
+            array(
+                'format'  => \Douglas\Request\Report::FORMAT_HTML,
+                'request' => $request
+            )
+        );
+        $html = $report->getHtml(function($asset_url, $jsessionid) {
+            return '';
+        });
+        $expected_return = <<<HTML
+<script type='text/javascript' src=''></script>
+<img src="" />
+<img src="" />
+HTML;
+        $this->assertEquals($expected_return, $html);
     }
 
     public function testRequestInterface()

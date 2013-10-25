@@ -77,14 +77,24 @@ class Report
         return $pretty;
     }
 
-    public function getHtml($asset_path, $base_url = '/jasperserver')
+    public function getHtml($asset_callback = null)
     {
         if ($this->format !== self::FORMAT_HTML) {
             return false;
         }
-        $body = str_replace($base_url, $asset_path, $this->getBody());
 
-        return $body;
+        if ( ! $asset_callback) {
+            return $this->getBody();
+        }
+
+        preg_match_all('/\<\w+[^\>]+src\=("|\')([^\'"]*)("|\')/m', $this->getBody(), $matches);
+        $assets = (isset($matches[2]) ? $matches[2] : array());
+        $replacements = array();
+        foreach ($assets as $asset_url) {
+            $new_asset_url = call_user_func_array($asset_callback, array($asset_url, $this->getJsessionid()));
+            $replacements[] = $new_asset_url;
+        }
+        return str_replace($assets, $replacements, $this->getBody());
     }
 
     public function send()
