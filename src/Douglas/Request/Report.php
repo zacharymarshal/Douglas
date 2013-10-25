@@ -65,10 +65,10 @@ class Report
         $pretty = str_replace(' ', '_', $pretty);
         // Then change camel case to underscore, i.e., TestCase -> test_case
         $pretty = strtolower($pretty[0]) . substr($pretty, 1);
-        $quoted_sep = preg_quote('_', '|');
-        $search = "|([A-Z])([^A-Z]+)|e";
-        $replace = '"' . $quoted_sep . '" . strtolower("\\1") . "\\2"';
-        $pretty = preg_replace($search, $replace, $pretty);
+        $search = "|([A-Z])([^A-Z]+)|";
+        $pretty = preg_replace_callback($search, function ($matches) {
+            return '_' . strtolower($matches[1]) . $matches[2];
+        }, $pretty);
         // Then make everything lowercase
         $pretty = strtolower($pretty);
         // Replace any duplicate underscores
