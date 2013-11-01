@@ -45,21 +45,25 @@ use \Douglas\Request\Asset as Asset;
 // Add exception handling for invalid formats
 $format = Report::getFormat($_GET['format']);
 
+// I normally encrypt this and store it in the database and pass it around
+$jasper_url = 'http://jasperadmin:jasperadmin@localhost:8443/jasperserver/';
+
 // Create a new Report object that should point to a jasper report
-$report = new Report(array(
-    'jasper_url' => 'http://jasperadmin:jasperadmin@localhost:8443/jasperserver/',
-    // The report URL is the full resource path in Jasper
-    'report_url' => '/organizations/demo/Reports/TestReport',
-    // These parameters get passed automatically to your report, there are also
-    // some Jasper specific parameters you can pass as well
-    'parameters' => array(
-        'gender'      => 'M',
-        'year'        => 2014,
-        'show_header' => $_GET['show_header']
-    ),
-    // This is the format you want the report to be returned as
-    'format'     => $format,
-));
+$report = new Report(
+    array(
+        'jasper_url' => $jasper_url,
+        // The report URL is the full resource path in Jasper
+        'report_url' => '/organizations/demo/Reports/TestReport',
+        // These parameters get passed automatically to your report, there 
+        // are also some Jasper specific parameters you can pass as well
+        'parameters' => array(
+            'gender' => 'M',
+            'year'   => 2014
+        ),
+        // This is the format you want the report to be returned as
+        'format'     => $format,
+    )
+);
 
 // This can be used for storing reports locally before giving them to the user
 $file_name = "{$report->getPrettyUrl()}.{$format}";
@@ -75,16 +79,17 @@ if ($report->getError()) {
 if (Report::FORMAT_HTML === $format) {
     // This will request the HTML from jasper and run a callback on every
     // asset jasper returns.  This is REQUIRED because the urls that jasper
-    // sends back are not web accessible and need to have the jsessionid cookie
-    // injected before being requested
+    // sends back are not web accessible and need to have the jsessionid 
+    // cookie injected before being requested
     $html = $report->getHtml(
-        function($asset_url, $jsessionid) {
+        function($asset_url, $jsessionid) use ($jasper_url) {
 
-            // I like to request every asset from jasper, re-save them locally
-            // so I can do caching, reloading, etc and not have to rely on Jasper
+            // I like to request every asset from jasper, re-save them 
+            // locally so I can do caching, reloading, etc and not have 
+            // to rely on Jasper
             $asset = new Asset(
                 array(
-                    'jasper_url' => 'http://jasperadmin:jasperadmin@localhost:8443/jasperserver/',
+                    'jasper_url' => $jasper_url,
                     'jsessionid' => $jsessionid,
                     'asset_url'  => $asset_url,
                 )
