@@ -14,7 +14,7 @@ I recommend you install Douglas using [Composer](http://getcomposer.org).
 curl -sS https://getcomposer.org/installer | php
 
 # Add Douglas as a dependency
-php composer.phar require zacharyrankin/Douglas:~1
+php composer.phar require zacharyrankin/Douglas:1.*
 ```
 
 After installing, be sure to require Composer's autoload.php:
@@ -25,13 +25,7 @@ require 'vendor/autoload.php';
 
 ### Installing via phar
 
-Clone the repository and run:
-
-```bash
-php create-phar.php
-```
-
-Move from `build/douglas.phar` to your application and include it:
+Downlad the [latest phar](https://github.com/zacharyrankin/Douglas/releases) and include it in your application
 
 ```php
 <?php
