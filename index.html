@@ -43,23 +43,132 @@
 <p>I recommend you install Douglas using <a href="http://getcomposer.org">Composer</a>.</p>
 
 <div class="highlight highlight-bash"><pre><span class="c"># Install Composer</span>
+curl -sS https://getcomposer.org/installer | php
+
 <span class="c"># Add Douglas as a dependency</span>
+php composer.phar require zacharyrankin/Douglas:1.*
+</pre></div>
+
+<p>After installing, be sure to require Composer's autoload.php:</p>
+
+<div class="highlight highlight-php"><pre><span class="k">require</span> <span class="s1">'vendor/autoload.php'</span><span class="p">;</span>
 </pre></div>
 
 <h3>
 <a name="installing-via-phar" class="anchor" href="#installing-via-phar"><span class="octicon octicon-link"></span></a>Installing via phar</h3>
 
-<p>Download the phar and include it in your application.</p>
+<p>Downlad the <a href="https://github.com/zacharyrankin/Douglas/releases">latest phar</a> and include it in your application</p>
 
 <div class="highlight highlight-php"><pre><span class="o">&lt;?</span><span class="nx">php</span>
 <span class="k">require</span> <span class="s1">'douglas.phar'</span><span class="p">;</span>
 </pre></div>
 
 <h3>
-<a name="unit-testing" class="anchor" href="#unit-testing"><span class="octicon octicon-link"></span></a>Unit Testing</h3>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h3>
+
+<p>Here is an extensive example of how I use this</p>
+
+<div class="highlight highlight-php"><pre><span class="o">&lt;?</span><span class="nx">php</span>
+
+<span class="k">use</span> <span class="nx">\Douglas\Request\Report</span> <span class="k">as</span> <span class="nx">Report</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">\Douglas\Request\Asset</span> <span class="k">as</span> <span class="nx">Asset</span><span class="p">;</span>
+
+<span class="c1">// Add exception handling for invalid formats</span>
+<span class="nv">$format</span> <span class="o">=</span> <span class="nx">Report</span><span class="o">::</span><span class="na">getFormat</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">'format'</span><span class="p">]);</span>
+
+<span class="c1">// I normally encrypt this and store it in the database and pass it around</span>
+<span class="nv">$jasper_url</span> <span class="o">=</span> <span class="s1">'http://jasperadmin:jasperadmin@localhost:8443/jasperserver/'</span><span class="p">;</span>
+
+<span class="c1">// Create a new Report object that should point to a jasper report</span>
+<span class="nv">$report</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Report</span><span class="p">(</span>
+    <span class="k">array</span><span class="p">(</span>
+        <span class="s1">'jasper_url'</span> <span class="o">=&gt;</span> <span class="nv">$jasper_url</span><span class="p">,</span>
+        <span class="c1">// The report URL is the full resource path in Jasper</span>
+        <span class="s1">'report_url'</span> <span class="o">=&gt;</span> <span class="s1">'/organizations/demo/Reports/TestReport'</span><span class="p">,</span>
+        <span class="c1">// These parameters get passed automatically to your report, there </span>
+        <span class="c1">// are also some Jasper specific parameters you can pass as well</span>
+        <span class="s1">'parameters'</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span>
+            <span class="s1">'gender'</span> <span class="o">=&gt;</span> <span class="s1">'M'</span><span class="p">,</span>
+            <span class="s1">'year'</span>   <span class="o">=&gt;</span> <span class="mi">2014</span>
+        <span class="p">),</span>
+        <span class="c1">// This is the format you want the report to be returned as</span>
+        <span class="s1">'format'</span>     <span class="o">=&gt;</span> <span class="nv">$format</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">);</span>
+
+<span class="c1">// This can be used for storing reports locally before giving them to the user</span>
+<span class="nv">$file_name</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{</span><span class="nv">$report</span><span class="o">-&gt;</span><span class="na">getPrettyUrl</span><span class="p">()</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="nv">$format</span><span class="si">}</span><span class="s2">"</span><span class="p">;</span>
+
+<span class="c1">// Make the request to Jasper</span>
+<span class="nv">$report</span><span class="o">-&gt;</span><span class="na">send</span><span class="p">();</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nv">$report</span><span class="o">-&gt;</span><span class="na">getError</span><span class="p">())</span> <span class="p">{</span>
+    <span class="c1">// Check to see if the request was successful or not</span>
+    <span class="c1">// and do something nice with the error</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nx">Report</span><span class="o">::</span><span class="na">FORMAT_HTML</span> <span class="o">===</span> <span class="nv">$format</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// This will request the HTML from jasper and run a callback on every</span>
+    <span class="c1">// asset jasper returns.  This is REQUIRED because the urls that jasper</span>
+    <span class="c1">// sends back are not web accessible and need to have the jsessionid </span>
+    <span class="c1">// cookie injected before being requested</span>
+    <span class="nv">$html</span> <span class="o">=</span> <span class="nv">$report</span><span class="o">-&gt;</span><span class="na">getHtml</span><span class="p">(</span>
+        <span class="k">function</span><span class="p">(</span><span class="nv">$asset_url</span><span class="p">,</span> <span class="nv">$jsessionid</span><span class="p">)</span> <span class="k">use</span> <span class="p">(</span><span class="nv">$jasper_url</span><span class="p">)</span> <span class="p">{</span>
+
+            <span class="c1">// I like to request every asset from jasper, re-save them </span>
+            <span class="c1">// locally so I can do caching, reloading, etc and not have </span>
+            <span class="c1">// to rely on Jasper</span>
+            <span class="nv">$asset</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Asset</span><span class="p">(</span>
+                <span class="k">array</span><span class="p">(</span>
+                    <span class="s1">'jasper_url'</span> <span class="o">=&gt;</span> <span class="nv">$jasper_url</span><span class="p">,</span>
+                    <span class="s1">'jsessionid'</span> <span class="o">=&gt;</span> <span class="nv">$jsessionid</span><span class="p">,</span>
+                    <span class="s1">'asset_url'</span>  <span class="o">=&gt;</span> <span class="nv">$asset_url</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">);</span>
+            <span class="nv">$asset</span><span class="o">-&gt;</span><span class="na">send</span><span class="p">();</span>
+
+            <span class="c1">// I like to only save images, though Jasper will sometimes</span>
+            <span class="c1">// send back javascript files like jquery</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nv">$asset</span><span class="o">-&gt;</span><span class="na">getHeader</span><span class="p">(</span><span class="s1">'content-type'</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">'image/png'</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+            <span class="p">}</span>
+
+            <span class="nv">$asset_file_name</span> <span class="o">=</span> <span class="nb">sprintf</span><span class="p">(</span><span class="s1">'jasper_report_asset_%s'</span><span class="p">,</span> <span class="nb">uniqid</span><span class="p">());</span>
+            <span class="nv">$full_asset_path</span> <span class="o">=</span> <span class="s2">"../images/</span><span class="si">{</span><span class="nv">$asset_file_name</span><span class="si">}</span><span class="s2">"</span><span class="p">;</span>
+
+            <span class="nv">$asset_fh</span> <span class="o">=</span> <span class="nb">fopen</span><span class="p">(</span><span class="nv">$full_asset_path</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">);</span>
+            <span class="nb">fwrite</span><span class="p">(</span><span class="nv">$asset_fh</span><span class="p">,</span> <span class="nv">$asset</span><span class="o">-&gt;</span><span class="na">getBody</span><span class="p">());</span>
+            <span class="nb">fclose</span><span class="p">(</span><span class="nv">$asset_fh</span><span class="p">);</span>
+            <span class="k">return</span> <span class="s2">"/</span><span class="si">{</span><span class="nv">$asset_file_name</span><span class="si">}</span><span class="s2">.png"</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">);</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nv">$body</span> <span class="o">=</span> <span class="nv">$report</span><span class="o">-&gt;</span><span class="na">getBody</span><span class="p">();</span>
+    <span class="c1">// Output the PDF or Excel here</span>
+<span class="p">}</span>
+
+</pre></div>
 
 <h3>
 <a name="contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h3>
+
+<ol>
+<li>Fork it</li>
+<li>Create your feature branch (<code>git checkout -b my-new-feature</code>)</li>
+<li>Commit your changes (<code>git commit -am 'Add some feature'</code>)</li>
+<li>Push to the branch (<code>git push origin my-new-feature</code>)</li>
+<li>Create new Pull Request</li>
+</ol><h4>
+<a name="unit-testing" class="anchor" href="#unit-testing"><span class="octicon octicon-link"></span></a>Unit Testing</h4>
+
+<p>Install PHPUnit using composer <code>php composer.phar install --dev</code> and then you can run the tests using <code>vendor/bin/phpunit</code></p>
+
+<h4>
+<a name="coding-standards" class="anchor" href="#coding-standards"><span class="octicon octicon-link"></span></a>Coding Standards</h4>
+
+<p>Stick to <a href="https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md">PSR-2</a></p>
+
+<p>I recommend running <a href="https://github.com/klaussilveira/phpcs-psr">PHP Code Sniffer with PSR-2 Standards</a> by running <code>phpcs --standard=PSR2 ./</code></p>
       </section>
       <footer>
         <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
