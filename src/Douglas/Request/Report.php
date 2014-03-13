@@ -29,7 +29,7 @@ class Report
         $this->parameters = $parameters;
         $this->format = $format;
 
-        if ( ! $request) {
+        if (!$request) {
             $request = new \Douglas\Request(
                 array(
                     'url'        => $this->getUrl(),
@@ -86,7 +86,7 @@ class Report
             return false;
         }
 
-        if ( ! $asset_callback) {
+        if (!$asset_callback) {
             return $this->getBody();
         }
 
@@ -97,6 +97,7 @@ class Report
             $new_asset_url = call_user_func_array($asset_callback, array($asset_url, $this->getJsessionid()));
             $replacements[] = $new_asset_url;
         }
+
         return str_replace($assets, $replacements, $this->getBody());
     }
 
@@ -143,7 +144,7 @@ class Report
             self::FORMAT_XLS,
             self::FORMAT_PDF
         );
-        if ( ! in_array($format, $allowed_formats)) {
+        if (!in_array($format, $allowed_formats)) {
             throw new \Exception('Invalid format.');
         }
 
