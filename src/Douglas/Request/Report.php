@@ -7,6 +7,7 @@ class Report
     const FORMAT_HTML = 'html';
     const FORMAT_PDF = 'pdf';
     const FORMAT_XLS = 'xls';
+    const FORMAT_DOCX = 'docx';
 
     public $jasper_url;
     public $report_url;
@@ -142,10 +143,14 @@ class Report
         $allowed_formats = array(
             self::FORMAT_HTML,
             self::FORMAT_XLS,
-            self::FORMAT_PDF
+            self::FORMAT_PDF,
+            self::FORMAT_DOCX,
         );
         if (!in_array($format, $allowed_formats)) {
-            throw new \Exception('Invalid format.');
+            throw new \Exception(
+                "Invalid format {$format}.  Needs to be one of these: "
+                . implode(", ", $allowed_formats) . "."
+            );
         }
 
         return $format;

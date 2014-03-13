@@ -27,7 +27,12 @@ class ReportTest extends \PHPUnit_Framework_TestCase
         try {
             $valid_format = \Douglas\Request\Report::getFormat('PHP');
         } catch (\Exception $expected) {
-            return;
+            $this->assertEquals(
+                "Invalid format php.  Needs to be one of these: html, xls, pdf, docx.",
+                $expected->getMessage()
+            );
+
+            return true;
         }
 
         $this->fail('An expected exception has not been thrown.');
@@ -117,7 +122,7 @@ class ReportTest extends \PHPUnit_Framework_TestCase
                 'request' => $request
             )
         );
-        $html = $report->getHtml(function($asset_url, $jsessionid) {
+        $html = $report->getHtml(function ($asset_url, $jsessionid) {
             return str_replace('jasperserver/test_image_url', '', $asset_url);
         });
         $this->assertEquals('<img src="1" /> <img src="2" />', $html);
@@ -135,7 +140,7 @@ class ReportTest extends \PHPUnit_Framework_TestCase
                 'request' => $request
             )
         );
-        $html = $report->getHtml(function($asset_url, $jsessionid) {
+        $html = $report->getHtml(function ($asset_url, $jsessionid) {
             return false;
         });
         $this->assertEquals('<img src="" />', $html);
@@ -153,7 +158,7 @@ class ReportTest extends \PHPUnit_Framework_TestCase
                 'request' => $request
             )
         );
-        $html = $report->getHtml(function($asset_url, $jsessionid) {
+        $html = $report->getHtml(function ($asset_url, $jsessionid) {
             return 'testing!';
         });
         $this->assertEquals("<img src='testing!' />", $html);
@@ -171,7 +176,7 @@ class ReportTest extends \PHPUnit_Framework_TestCase
                 'request' => $request
             )
         );
-        $html = $report->getHtml(function($asset_url, $jsessionid) {
+        $html = $report->getHtml(function ($asset_url, $jsessionid) {
             return 'testing!';
         });
         $this->assertEquals("<script type='text/javascript' src='testing!'></script>", $html);
@@ -194,7 +199,7 @@ HTML;
                 'request' => $request
             )
         );
-        $html = $report->getHtml(function($asset_url, $jsessionid) {
+        $html = $report->getHtml(function ($asset_url, $jsessionid) {
             return '';
         });
         $expected_return = <<<HTML
