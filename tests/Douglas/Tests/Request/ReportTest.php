@@ -22,6 +22,12 @@ class ReportTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('html', $valid_format);
     }
 
+    public function testDocxIsValidFormat()
+    {
+        $valid_format = \Douglas\Request\Report::getFormat('DOCX');
+        $this->assertEquals('docx', $valid_format);
+    }
+
     public function testInvalidFormats()
     {
         try {
