@@ -1,7 +1,7 @@
 Douglas
 =======
 
-[![Build Status](https://travis-ci.org/zacharyrankin/Douglas.png?branch=master)](https://travis-ci.org/zacharyrankin/Douglas)
+[![Build Status](https://travis-ci.org/zacharyrankin/Douglas.png?branch=master)](https://travis-ci.org/zacharyrankin/Douglas) [![Dependency Status](https://www.versioneye.com/user/projects/532e683af59949d0f500038b/badge.png)](https://www.versioneye.com/user/projects/532e683af59949d0f500038b)
 
 Douglas PHP library for running Jasper Reports using their report REST API (v2)
 
