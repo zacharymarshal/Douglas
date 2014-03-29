@@ -1,8 +1,6 @@
 .DS_Store
 phpunit.xml
 composer.phar
-composer.lock
-composer-test.lock
 vendor/
 tests/config.php
 build/
