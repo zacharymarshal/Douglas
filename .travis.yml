@@ -8,3 +8,7 @@ php:
 before_script:
   - composer install --dev
   - cp phpunit.xml.default phpunit.xml
+
+addons:
+  code_climate:
+    repo_token: 89c93fd2d50f82d84533c1e9d08609baa0fe3d3da348e562420567de70ea7b7d
