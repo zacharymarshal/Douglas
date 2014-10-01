@@ -4,3 +4,4 @@ composer.phar
 vendor/
 tests/config.php
 build/
+.idea/
