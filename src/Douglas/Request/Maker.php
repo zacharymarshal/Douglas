@@ -13,8 +13,8 @@ class Maker
         curl_setopt($ch, CURLOPT_HEADER, true);
         // Force JSON to be returned instead of XML
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json'));
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 60);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 1500);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 300);
 
         if ($jsessionid) {
             curl_setopt($ch, CURLOPT_COOKIE, "JSESSIONID={$jsessionid}");
