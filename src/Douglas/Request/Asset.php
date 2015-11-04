@@ -7,23 +7,26 @@ class Asset
     protected $jsessionid;
     protected $jasper_url;
     protected $asset_url;
+    protected $backend;
 
     protected $request;
 
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
-        $request = $jasper_url = $jsessionid = $asset_url = null;
+        $request = $jasper_url = $jsessionid = $asset_url = $backend = null;
         extract($options, EXTR_IF_EXISTS);
         $this->jsessionid = $jsessionid;
         $this->jasper_url = $jasper_url;
         $this->asset_url = $asset_url;
-        if ( ! $request) {
+        $this->backend = $backend;
+        if (!$request) {
             $request = new \Douglas\Request(
-                array(
+                [
                     'url'        => $this->asset_url,
                     'jasper_url' => $this->jasper_url,
                     'jsessionid' => $this->jsessionid,
-                )
+                    'backend'    => $this->backend,
+                ]
             );
         }
         $this->request = $request;
@@ -70,5 +73,10 @@ class Asset
     public function getJsessionid()
     {
         return $this->request->getJsessionid();
+    }
+
+    public function getBackend()
+    {
+        return $this->request->getBackend();
     }
 }
