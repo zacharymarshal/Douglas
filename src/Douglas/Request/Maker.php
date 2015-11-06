@@ -4,7 +4,7 @@ namespace Douglas\Request;
 
 class Maker
 {
-    public static function send($url, $jsessionid, $backend)
+    public static function send($url, $jsessionid, $backend = null)
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);

@@ -4,7 +4,7 @@ namespace Douglas\Tests\Request;
 
 class StubMakerError extends \Douglas\Request\Maker
 {
-    public static function send($url, $jsessionid)
+    public static function send($url, $jsessionid, $backend = null)
     {
         $response = <<<JSON
 HTTP/1.1 500 Internal Server Error
@@ -13,7 +13,7 @@ Pragma: No-cache
 Cache-Control: no-cache
 Expires: Wed, 31 Dec 1969 16:00:00 PST
 P3P: CP="ALL"
-Set-Cookie: JSESSIONID=DB43F9A66F176FB4D1A9B898AE0D6AD5; Path=/jasperserver-pro; Secure
+Set-Cookie: JSESSIONID=DB43F9A66F176FB4D1A9B898AE0D6AD5; Path=/jasperserver-pro; BACKEND=56eda9221030a9e7aba7ff117ba969e4; Secure
 Set-Cookie: userLocale=en_US;Expires=Fri, 18-Oct-2013 20:13:36 GMT;HttpOnly
 Content-Type: application/json
 Transfer-Encoding: chunked

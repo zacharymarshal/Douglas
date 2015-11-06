@@ -11,7 +11,7 @@ class Asset
 
     protected $request;
 
-    public function __construct($options = [])
+    public function __construct($options = array())
     {
         $request = $jasper_url = $jsessionid = $asset_url = $backend = null;
         extract($options, EXTR_IF_EXISTS);
@@ -21,12 +21,12 @@ class Asset
         $this->backend = $backend;
         if (!$request) {
             $request = new \Douglas\Request(
-                [
+                array(
                     'url'        => $this->asset_url,
                     'jasper_url' => $this->jasper_url,
                     'jsessionid' => $this->jsessionid,
                     'backend'    => $this->backend,
-                ]
+                )
             );
         }
         $this->request = $request;
