@@ -19,7 +19,7 @@ Content-Length: 3210
 Date: Thu, 17 Oct 2013 19:42:13 GMT
 
 <html></html>";
-        $header_size = 394;
+        $header_size = 424;
         return array($response, $header_size);
     }
 }

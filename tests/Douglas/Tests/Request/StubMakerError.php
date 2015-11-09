@@ -22,7 +22,7 @@ Connection: close
 
 {"message":"Unexpected error","errorCode":"unexpected.error","parameters":["java.lang.NumberFormatException"]}
 JSON;
-        $header_size = 445;
+        $header_size = 472;
         return array($response, $header_size);
     }
 }

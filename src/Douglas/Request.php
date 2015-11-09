@@ -102,7 +102,7 @@ class Request
 
     protected function parseCode($header)
     {
-        $parts = explode(' ', substr($header, 0, strpos($header, "\r\n")));
+        $parts = explode(' ', substr($header, 0, strpos($header, "\n")));
         return intval($parts[1]);
     }
 
