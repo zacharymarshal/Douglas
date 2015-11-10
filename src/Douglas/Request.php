@@ -7,6 +7,7 @@ class Request
     protected $url;
     protected $jasper_url;
     protected $jsessionid;
+    protected $backend;
 
     protected $headers = array();
     protected $code;
@@ -15,12 +16,13 @@ class Request
 
     public function __construct($options = array())
     {
-        $url = $jasper_url = $jsessionid = null;
+        $url = $jasper_url = $jsessionid = $backend = null;
         $maker = '\Douglas\Request\Maker';
         extract($options, EXTR_IF_EXISTS);
         $this->url = $url;
         $this->jasper_url = $jasper_url;
         $this->jsessionid = $jsessionid;
+        $this->backend = $backend;
         $this->maker = $maker;
     }
 
@@ -28,7 +30,7 @@ class Request
     {
         list($response, $header_size) = call_user_func_array(
             array($this->maker, 'send'),
-            array($this->getUrl(), $this->jsessionid)
+            array($this->getUrl(), $this->jsessionid, $this->backend)
         );
 
         $header = substr($response, 0, $header_size);
@@ -36,6 +38,7 @@ class Request
         $this->headers = $this->parseHeader($header);
         $this->code = $this->parseCode($header);
         $this->jsessionid = $this->parseJsessionid($header);
+        $this->backend = $this->parseBackend($header);
         $this->body = substr($response, $header_size);
 
         return $this;
@@ -84,6 +87,11 @@ class Request
         return $this->jsessionid;
     }
 
+    public function getBackend()
+    {
+        return $this->backend;
+    }
+
     protected function getUrl()
     {
         $url = ltrim($this->url, '/');
@@ -94,7 +102,7 @@ class Request
 
     protected function parseCode($header)
     {
-        $parts = explode(' ', substr($header, 0, strpos($header, "\r\n")));
+        $parts = explode(' ', substr($header, 0, strpos($header, "\n")));
         return intval($parts[1]);
     }
 
@@ -120,6 +128,13 @@ class Request
     protected function parseJsessionid($header)
     {
         preg_match("/JSESSIONID=(\S+);/", $header, $cookie);
+
+        return (isset($cookie[1]) ? $cookie[1] : false);
+    }
+
+    protected function parseBackend($header)
+    {
+        preg_match("/BACKEND=(\S+);/", $header, $cookie);
 
         return (isset($cookie[1]) ? $cookie[1] : false);
     }

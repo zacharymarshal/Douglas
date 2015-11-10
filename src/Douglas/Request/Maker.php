@@ -4,7 +4,7 @@ namespace Douglas\Request;
 
 class Maker
 {
-    public static function send($url, $jsessionid)
+    public static function send($url, $jsessionid, $backend = null)
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -17,8 +17,15 @@ class Maker
         curl_setopt($ch, CURLOPT_TIMEOUT, 1500);
 
         if ($jsessionid) {
-            curl_setopt($ch, CURLOPT_COOKIE, "JSESSIONID={$jsessionid}");
+            $cookie = "JSESSIONID={$jsessionid}";
+
+            if ($backend) {
+                $cookie = $cookie . "; BACKEND={$backend}";
+            }
+
+            curl_setopt($ch, CURLOPT_COOKIE, $cookie);
         }
+
         $response = curl_exec($ch);
         $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
 

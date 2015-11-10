@@ -95,7 +95,7 @@ class Report
         $assets = (isset($matches[2]) ? $matches[2] : array());
         $replacements = array();
         foreach ($assets as $asset_url) {
-            $new_asset_url = call_user_func_array($asset_callback, array($asset_url, $this->getJsessionid()));
+            $new_asset_url = call_user_func_array($asset_callback, array($asset_url, $this->getJsessionid(), $this->getBackend()));
             $replacements[] = $new_asset_url;
         }
 
@@ -135,6 +135,11 @@ class Report
     public function getJsessionid()
     {
         return $this->request->getJsessionid();
+    }
+
+    public function getBackend()
+    {
+        return $this->request->getBackend();
     }
 
     public static function getFormat($format)
